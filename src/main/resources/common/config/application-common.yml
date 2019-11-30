@@ -28,7 +28,7 @@ server:
     enabled: true
   servlet:
     context-path: /transport_app/api
-  port: 9999
+  port: 9998
   use-forward-headers: true
 
 # Application monitor info

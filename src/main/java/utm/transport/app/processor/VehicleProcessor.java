@@ -5,10 +5,10 @@ import utm.transport.app.api.dto.location.VehicleDto;
 
 public class VehicleProcessor {
 
-    private static final double radius = 0.8;
+    private static final double radius = 0.003;
 
     public static boolean checkForLocation (Double lat, Double lon, VehicleDto item) {
-        return item.getLon() - lon <=  radius && item.getLat() - lat <= radius;
+        return Math.abs(item.getLon() - lon) <=  radius && Math.abs(item.getLat() - lat) <= radius;
     }
 
     public static VehicleDto transformToDto(String jsonString) {

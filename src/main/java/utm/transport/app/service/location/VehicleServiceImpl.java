@@ -57,13 +57,21 @@ public class VehicleServiceImpl implements VehicleService {
 
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             VehicleDto vehicle = VehicleProcessor.transformToDto(new String(delivery.getBody(), UTF_8));
-            if (mq.containsKey(vehicle.getTransportId())) {
-                if (mq.get(vehicle.getTransportId()) != null) {
-                    mq.get(vehicle.getTransportId()).add(vehicle);
+            try {
+                if (mq.containsKey(vehicle.getTransportId())) {
+                    if (mq.get(vehicle.getTransportId()) != null) {
+                        mq.get(vehicle.getTransportId()).add(vehicle);
+                    }
+                } else {
+                    List<VehicleDto> vehicleDtos = new ArrayList<>();
+                    vehicleDtos.add(vehicle);
+                    mq.put(vehicle.getTransportId(), vehicleDtos);
                 }
-            } else mq.put(vehicle.getTransportId(), Arrays.asList(vehicle));
 
-            System.out.println(String.format("Сообщение получено: %s", vehicle.getTransportId()));
+                System.out.println(String.format("Сообщение получено: %s", vehicle.getTransportId()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         };
 
         messageListenerModule.receiveMessages(uid, deliverCallback);
@@ -73,7 +81,6 @@ public class VehicleServiceImpl implements VehicleService {
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public void abort(String uid) {
         messageListenerModule.abort(uid);
-        messageListenerModule = null;
         mq.clear();
     }
 
@@ -88,7 +95,7 @@ public class VehicleServiceImpl implements VehicleService {
             track.setTransportId(k);
             List<PointDto> trackDots = new ArrayList<>();
             v.forEach((i->{
-                if (VehicleProcessor.checkForLocation(lat, lon, i)) {
+                if (true) {
                     track.setAverageSpeed(track.getAverageSpeed() + i.getSpeed());
                     routePathDto.getGeometry().forEach((p)->{
                         if (Math.abs(p.getX() - i.getLon()) <= 0.002 && Math.abs(p.getY() - i.getLat()) <= 0.002) {

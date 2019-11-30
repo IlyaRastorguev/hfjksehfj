@@ -1,9 +1,7 @@
 package utm.transport.app.listener;
 
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.DeliverCallback;
+import com.rabbitmq.client.*;
+import com.rabbitmq.client.impl.DefaultExceptionHandler;
 import utm.transport.app.cache.CacheManager;
 import utm.transport.app.exceptions.MessageRecieveException;
 
@@ -37,6 +35,14 @@ public class MessageListenerModule {
             String queueName = channel.queueDeclare().getQueue();
             channel.queueBind(queueName, EXCHANGE_NAME, ROUTING_KEY);
             channel.queueDeclare(QUEUE_NAME, false, false, false, null);
+            final ExceptionHandler eh = new DefaultExceptionHandler() {
+                @Override
+                public void handleConsumerException(Channel channel, Throwable exception, Consumer consumer, String consumerTag, String methodName) {
+                    System.out.println(" - Error raised by: " + channel.getChannelNumber());
+                }
+            };
+
+            factory.setExceptionHandler(eh);
 
             return new MessageListenerModule(channel, queueName);
 

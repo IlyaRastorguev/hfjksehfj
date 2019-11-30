@@ -13,10 +13,10 @@ import utm.transport.app.repository.location.PathStopsRepository;
 import utm.transport.app.repository.location.RoutePathRepository;
 import utm.transport.app.repository.location.RouteRepository;
 import utm.transport.app.repository.location.StopsRepository;
+import utm.transport.app.service.location.StopService;
+import utm.transport.app.service.location.StopServiceImpl;
 import utm.transport.app.service.location.VehicleService;
 import utm.transport.app.service.location.VehicleServiceImpl;
-
-import java.util.concurrent.TimeUnit;
 
 
 @Configuration
@@ -41,6 +41,12 @@ public class ServiceConfig
     public VehicleService vehicleService()
     {
         return new VehicleServiceImpl(pathStopsRepository, routePathRepository, routeRepository, stopsRepository);
+    }
+
+    @Bean
+    public StopService stopService()
+    {
+        return new StopServiceImpl(pathStopsRepository, stopsRepository);
     }
 
     @Bean

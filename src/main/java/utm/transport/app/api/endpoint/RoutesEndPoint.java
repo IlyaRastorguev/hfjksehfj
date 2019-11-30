@@ -14,8 +14,10 @@ import utm.transport.app.api.dto.location.StatusMessageDto;
 import utm.transport.app.api.dto.location.VehicleDto;
 import utm.transport.app.api.dto.location.VehicleTrack;
 import utm.transport.app.entity.location.RoutePath;
+import utm.transport.app.entity.location.Stop;
 import utm.transport.app.exceptions.MessageRecieveException;
 import utm.transport.app.processor.VehicleProcessor;
+import utm.transport.app.service.location.StopService;
 import utm.transport.app.service.location.VehicleService;
 
 import java.util.ArrayList;
@@ -28,9 +30,11 @@ import java.util.Optional;
 public class RoutesEndPoint {
 
     private VehicleService service;
+    private StopService stopService;
 
-    public RoutesEndPoint(VehicleService service) {
+    public RoutesEndPoint(VehicleService service, StopService stopService) {
         this.service = service;
+        this.stopService = stopService;
     }
 
     @GetMapping("/route/path/{id}")
@@ -71,5 +75,16 @@ public class RoutesEndPoint {
     @GetMapping("/route/get/{lat}/{lon}")
     public List<VehicleTrack> getCurrent (@PathVariable("lat") Double lat, @PathVariable("lon") Double lon) {
         return service.get(lat, lon);
+    }
+
+    @GetMapping("/stops/get/{lat}/{lon}")
+    public List<Stop> getCurrentStops (@PathVariable("lat") Double lat, @PathVariable("lon") Double lon) {
+//  temp
+//        return stopService.getClosestStops(lat, lon).get();
+        List<Stop> stops = stopService.getClosestStops(lat, lon).get();
+        for (Stop s : stops)
+            System.out.println(s.getId() + "; " + s.getLat() + "; " + s.getLon());
+
+        return stops;
     }
 }

@@ -63,9 +63,9 @@ public class MessageListenerModule {
 
     public void abort (String uid) {
         try {
-            CHANNEL.abort();
+            CHANNEL.close();
             CacheManager.deleteAndEvict();
-        } catch (IOException e) {
+        } catch (IOException | TimeoutException e) {
             e.printStackTrace();
         }
     }

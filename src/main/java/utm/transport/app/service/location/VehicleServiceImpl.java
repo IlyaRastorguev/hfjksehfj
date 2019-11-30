@@ -27,15 +27,13 @@ public class VehicleServiceImpl implements VehicleService {
     private final PathStopsRepository pathStopsRepository;
     private final RoutePathRepository routePathRepository;
     private final RouteRepository routeRepository;
-    private final StopsRepository stopsRepository;
     private static MessageListenerModule messageListenerModule;
-    private final ConcurrentHashMap<String, List<VehicleDto>> mq = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Queue<VehicleDto>> mq = new ConcurrentHashMap<>();
 
     public VehicleServiceImpl (PathStopsRepository pathStopsRepository, RoutePathRepository routePathRepository, RouteRepository routeRepository, StopsRepository stopsRepository) {
         this.pathStopsRepository = pathStopsRepository;
         this.routePathRepository = routePathRepository;
         this.routeRepository = routeRepository;
-        this.stopsRepository = stopsRepository;
     }
 
     @Override
@@ -53,8 +51,7 @@ public class VehicleServiceImpl implements VehicleService {
     @Override
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public void getStarted(String uid) throws MessageRecieveException {
-        if (messageListenerModule == null)
-            messageListenerModule = MessageListenerModule.init();
+        messageListenerModule = MessageListenerModule.init();
 
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             VehicleDto vehicle = VehicleProcessor.transformToDto(new String(delivery.getBody(), UTF_8));
@@ -62,9 +59,10 @@ public class VehicleServiceImpl implements VehicleService {
                 if (mq.containsKey(vehicle.getTransportId())) {
                     if (mq.get(vehicle.getTransportId()) != null) {
                         mq.get(vehicle.getTransportId()).add(vehicle);
+                        mq.get(vehicle.getTransportId()).remove();
                     }
                 } else {
-                    List<VehicleDto> vehicleDtos = new ArrayList<>();
+                    Queue<VehicleDto> vehicleDtos = new LinkedList<>();
                     vehicleDtos.add(vehicle);
                     mq.put(vehicle.getTransportId(), vehicleDtos);
                 }
@@ -96,26 +94,29 @@ public class VehicleServiceImpl implements VehicleService {
     public List<VehicleTrack> get(Double lat, Double lon) {
         List<VehicleTrack> listOfAverageData = new ArrayList<>();
         mq.forEach((k, v) -> {
-            RoutePathDto routePathDto = RoutePathDto.fromEntity(getRoutePath(v.get(0).getPathId()).get());
-            Route route = getRouteById(routePathDto.getRouteId());
-            VehicleTrack track = new VehicleTrack();
-            track.setAverageSpeed(0.00);
-            track.setTransportId(k);
-            track.setRouteName(route.getName());
-            track.setRouteNumber(route.getNumber());
-            track.setFullTrack(routePathDto.getGeometry());
-            List<PointDto> trackDots = new ArrayList<>();
-            v.forEach((i->{
+            if (v.element() != null) {
+                String routeId = v.element().getPathId();
+                RoutePathDto routePathDto = RoutePathDto.fromEntity(getRoutePath(routeId).get());
+                Route route = getRouteById(routePathDto.getRouteId());
+                VehicleTrack track = new VehicleTrack();
+                track.setAverageSpeed(0.00);
+                track.setTransportId(k);
+                track.setRouteName(route.getName());
+                track.setRouteNumber(route.getNumber());
+                track.setFullTrack(routePathDto.getGeometry());
+                List<PointDto> trackDots = new ArrayList<>();
+                v.forEach((i->{
                     track.setAverageSpeed(track.getAverageSpeed() + i.getSpeed());
                     routePathDto.getGeometry().forEach((p)->{
                         if (Math.abs(p.getX() - i.getLon()) <= 0.002 && Math.abs(p.getY() - i.getLat()) <= 0.002) {
                             trackDots.add(p);
                         }
                     });
-            }));
-            track.setAverageSpeed(track.getAverageSpeed() / v.size());
-            track.setTrack(trackDots);
-            listOfAverageData.add(track);
+                }));
+                track.setAverageSpeed(track.getAverageSpeed() / v.size());
+                track.setTrack(trackDots);
+                listOfAverageData.add(track);
+            }
         });
         return listOfAverageData;
     }

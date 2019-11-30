@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import utm.transport.app.api.dto.location.RoutePathDto;
 import utm.transport.app.api.dto.location.StatusMessageDto;
 import utm.transport.app.api.dto.location.VehicleDto;
+import utm.transport.app.api.dto.location.VehicleTrack;
 import utm.transport.app.entity.location.RoutePath;
 import utm.transport.app.exceptions.MessageRecieveException;
 import utm.transport.app.processor.VehicleProcessor;
@@ -68,12 +69,7 @@ public class RoutesEndPoint {
     }
 
     @GetMapping("/route/get/{lat}/{lon}")
-    public List<VehicleDto> getCurrent (@PathVariable("lat") Double lat, @PathVariable("lon") Double lon) {
-        List<VehicleDto> vehicleDtoList = new ArrayList<>();
-        service.get().forEach((i)->{
-            VehicleProcessor.checkForLocation(vehicleDtoList, lat, lon, i);
-            vehicleDtoList.add(new Gson().fromJson(i, VehicleDto.class));
-        });
-        return vehicleDtoList;
+    public List<VehicleTrack> getCurrent (@PathVariable("lat") Double lat, @PathVariable("lon") Double lon) {
+        return service.get(lat, lon);
     }
 }

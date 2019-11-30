@@ -1,5 +1,6 @@
 package utm.transport.app.service.location;
 
+import utm.transport.app.api.dto.location.VehicleTrack;
 import utm.transport.app.entity.location.PathStops;
 import utm.transport.app.entity.location.RoutePath;
 import utm.transport.app.exceptions.MessageRecieveException;
@@ -12,5 +13,5 @@ public interface VehicleService {
     Optional<List<PathStops>> getRoutePathStops(String id);
     void getStarted(String uid) throws MessageRecieveException;
     void abort(String uid);
-    List<String> get();
+    List<VehicleTrack> get(Double lat, Double lon);
 }

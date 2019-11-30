@@ -1,6 +1,7 @@
 package utm.transport.app.service.location;
 
 import com.rabbitmq.client.DeliverCallback;
+import org.eclipse.jetty.util.BlockingArrayQueue;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import utm.transport.app.api.dto.location.PointDto;
@@ -62,7 +63,7 @@ public class VehicleServiceImpl implements VehicleService {
                         mq.get(vehicle.getTransportId()).remove();
                     }
                 } else {
-                    Queue<VehicleDto> vehicleDtos = new LinkedList<>();
+                    Queue<VehicleDto> vehicleDtos = new BlockingArrayQueue<>();
                     vehicleDtos.add(vehicle);
                     mq.put(vehicle.getTransportId(), vehicleDtos);
                 }
@@ -94,7 +95,7 @@ public class VehicleServiceImpl implements VehicleService {
     public List<VehicleTrack> get(Double lat, Double lon) {
         List<VehicleTrack> listOfAverageData = new ArrayList<>();
         mq.forEach((k, v) -> {
-            if (v.element() != null) {
+            if (v.peek() != null) {
                 String routeId = v.element().getPathId();
                 RoutePathDto routePathDto = RoutePathDto.fromEntity(getRoutePath(routeId).get());
                 Route route = getRouteById(routePathDto.getRouteId());

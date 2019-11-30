@@ -1,26 +1,21 @@
 package utm.transport.app.api.endpoint;
 
-import com.google.gson.Gson;
 import io.swagger.annotations.Api;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.json.GsonFactoryBean;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import utm.transport.app.api.dto.location.RoutePathDto;
 import utm.transport.app.api.dto.location.StatusMessageDto;
-import utm.transport.app.api.dto.location.VehicleDto;
 import utm.transport.app.api.dto.location.VehicleTrack;
 import utm.transport.app.entity.location.RoutePath;
 import utm.transport.app.entity.location.Stop;
 import utm.transport.app.exceptions.MessageRecieveException;
-import utm.transport.app.processor.VehicleProcessor;
 import utm.transport.app.service.location.StopService;
 import utm.transport.app.service.location.VehicleService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -79,8 +74,6 @@ public class RoutesEndPoint {
 
     @GetMapping("/stops/get/{lat}/{lon}")
     public List<Stop> getCurrentStops (@PathVariable("lat") Double lat, @PathVariable("lon") Double lon) {
-//  temp
-//        return stopService.getClosestStops(lat, lon).get();
         List<Stop> stops = stopService.getClosestStops(lat, lon).get();
         for (Stop s : stops)
             System.out.println(s.getId() + "; " + s.getLat() + "; " + s.getLon());

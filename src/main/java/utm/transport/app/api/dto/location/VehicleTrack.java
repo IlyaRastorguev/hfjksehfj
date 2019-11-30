@@ -13,4 +13,7 @@ public class VehicleTrack {
     List<PointDto> track;
     Double averageSpeed;
     String transportId;
+    String routeName;
+    String routeNumber;
+    List<PointDto> fullTrack;
 }

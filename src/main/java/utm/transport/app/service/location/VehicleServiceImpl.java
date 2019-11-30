@@ -8,6 +8,7 @@ import utm.transport.app.api.dto.location.RoutePathDto;
 import utm.transport.app.api.dto.location.VehicleDto;
 import utm.transport.app.api.dto.location.VehicleTrack;
 import utm.transport.app.entity.location.PathStops;
+import utm.transport.app.entity.location.Route;
 import utm.transport.app.entity.location.RoutePath;
 import utm.transport.app.exceptions.MessageRecieveException;
 import utm.transport.app.listener.MessageListenerModule;
@@ -86,23 +87,31 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Override
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+    public Route getRouteById(String id) {
+        return routeRepository.findById(id).get();
+    }
+
+    @Override
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<VehicleTrack> get(Double lat, Double lon) {
         List<VehicleTrack> listOfAverageData = new ArrayList<>();
         mq.forEach((k, v) -> {
             RoutePathDto routePathDto = RoutePathDto.fromEntity(getRoutePath(v.get(0).getPathId()).get());
+            Route route = getRouteById(routePathDto.getRouteId());
             VehicleTrack track = new VehicleTrack();
             track.setAverageSpeed(0.00);
             track.setTransportId(k);
+            track.setRouteName(route.getName());
+            track.setRouteNumber(route.getNumber());
+            track.setFullTrack(routePathDto.getGeometry());
             List<PointDto> trackDots = new ArrayList<>();
             v.forEach((i->{
-                if (true) {
                     track.setAverageSpeed(track.getAverageSpeed() + i.getSpeed());
                     routePathDto.getGeometry().forEach((p)->{
                         if (Math.abs(p.getX() - i.getLon()) <= 0.002 && Math.abs(p.getY() - i.getLat()) <= 0.002) {
                             trackDots.add(p);
                         }
                     });
-                }
             }));
             track.setAverageSpeed(track.getAverageSpeed() / v.size());
             track.setTrack(trackDots);

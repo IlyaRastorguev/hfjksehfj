@@ -1,0 +1,57 @@
+# Spring config
+spring:
+  application:
+    name: transport_app
+  # Spring boot admin config
+  boot:
+    admin:
+      client:
+        enabled: false
+        url: http://localhost:8060/admin
+        username: "admin"
+        password: "1234"
+        period: 60000
+        auto-registration: true
+        auto-deregistration: true
+        register-once: false
+  liquibase:
+    change-log: classpath:liquibase/changelog-master.xml
+    enabled: false
+
+logging:
+  level:
+    liquibase: INFO
+
+# Server config
+server:
+  http2:
+    enabled: true
+  servlet:
+    context-path: /transport_app/api
+  port: 9999
+  use-forward-headers: true
+
+# Application monitor info
+info:
+  app:
+    name: Transport app
+    description: demo transport app
+    environment: dev
+
+# Application monitor
+management:
+  security:
+    enabled: false
+  endpoints:
+    web:
+      base-path: /monitor
+      exposure:
+        include: auditevents,caches,configprops,env,health,info,metrics,scheduledtasks,shutdown,sessions
+  endpoint:
+    shutdown:
+      enabled: true
+    health:
+      show-details: always
+  metrics:
+    cache:
+      instrument-cache: true

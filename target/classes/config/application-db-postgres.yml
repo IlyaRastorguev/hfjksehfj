@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://77.108.90.172:10005/transport
+    driverClassName: org.postgresql.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+    username: utm
+    password: mMM920i-0f
+    hikari:
+      connectionTimeout: 30000
+      idle-timeout: 60000
+      max-lifetime: 120000
+      auto-commit: false
+      minimum-idle: 2
+      maximum-pool-size: 5
+      pool-name: HikariDataSourcePool
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL9Dialect
+    open-in-view: false

@@ -1,0 +1,3 @@
+spring:
+  profiles:
+    active: common,security,@spring-profile-active@,@spring-profile-db@

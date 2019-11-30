@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="true">
+
+    <property name="LOG_PATH" value="logs" />
+    <property name="LOG_NAME" value="transport_app" />
+    <property name="LOG_ARCHIVE" value="${LOG_PATH}/archive" />
+    <property name="MESSAGE_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss} [%thread] %highlight(%-5level) [%logger{35}:%line] - %msg%n" />
+    <property name="ROOT_FILE_NAME_PATTERN" value="${LOG_ARCHIVE}/${LOG_NAME}.%d{yyyy-MM-dd}.%i.log"/>
+    <property name="DB_QUERY_FILE_NAME_PATTERN" value="${LOG_ARCHIVE}/db/query/${LOG_NAME}.%d{yyyy-MM-dd}.%i.log"/>
+    <timestamp key="timestamp-by-second" datePattern="yyyy-MM-dd'T'HH.mm.ss"/>
+
+    <appender name="Console-Appender" class="ch.qos.logback.core.ConsoleAppender">
+        <layout>
+            <pattern>${MESSAGE_PATTERN}</pattern>
+        </layout>
+    </appender>
+
+    <!--  DataBase Query -->
+    <appender name="DB-Query-RollingFile-Appender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${LOG_NAME}-db-query}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${DB_QUERY_FILE_NAME_PATTERN}</fileNamePattern>
+            <maxHistory>10</maxHistory>
+            <maxFileSize>10MB</maxFileSize>
+            <totalSizeCap>100MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${MESSAGE_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="io.swagger.models.parameters.AbstractSerializableParameter" level="error" additivity="false"/>
+
+    <!--  ROOT  -->
+    <appender name="Root-RollingFile-Appender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${LOG_NAME}}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${ROOT_FILE_NAME_PATTERN}</fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <maxFileSize>15MB</maxFileSize>
+            <totalSizeCap>500MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${MESSAGE_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="Root-Async-Appender" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>50</queueSize>
+        <appender-ref ref="Root-RollingFile-Appender" />
+    </appender>
+
+    <root level="debug" additivity="false">
+        <appender-ref ref="Console-Appender" />
+        <appender-ref ref="Root-Async-Appender" />
+    </root>
+</configuration>

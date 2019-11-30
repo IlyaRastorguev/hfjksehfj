@@ -67,17 +67,13 @@ public class RoutesEndPoint {
         return ResponseEntity.ok(statusMessageDto);
     }
 
-    @GetMapping("/route/get/{lat}/{lon}")
+    @GetMapping("/route/get/{lat}/{lon}/")
     public List<VehicleTrack> getCurrent (@PathVariable("lat") Double lat, @PathVariable("lon") Double lon) {
         return service.get(lat, lon);
     }
 
-    @GetMapping("/stops/get/{lat}/{lon}")
+    @GetMapping("/stops/get/{lat}/{lon}/")
     public List<Stop> getCurrentStops (@PathVariable("lat") Double lat, @PathVariable("lon") Double lon) {
-        List<Stop> stops = stopService.getClosestStops(lat, lon).get();
-        for (Stop s : stops)
-            System.out.println(s.getId() + "; " + s.getLat() + "; " + s.getLon());
-
-        return stops;
+        return stopService.getClosestStops(lat, lon).get();
     }
 }

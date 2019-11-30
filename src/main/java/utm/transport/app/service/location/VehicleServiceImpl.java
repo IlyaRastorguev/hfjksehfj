@@ -94,26 +94,29 @@ public class VehicleServiceImpl implements VehicleService {
     public List<VehicleTrack> get(Double lat, Double lon) {
         List<VehicleTrack> listOfAverageData = new ArrayList<>();
         mq.forEach((k, v) -> {
-            RoutePathDto routePathDto = RoutePathDto.fromEntity(getRoutePath(v.element().getPathId()).get());
-            Route route = getRouteById(routePathDto.getRouteId());
-            VehicleTrack track = new VehicleTrack();
-            track.setAverageSpeed(0.00);
-            track.setTransportId(k);
-            track.setRouteName(route.getName());
-            track.setRouteNumber(route.getNumber());
-            track.setFullTrack(routePathDto.getGeometry());
-            List<PointDto> trackDots = new ArrayList<>();
-            v.forEach((i->{
+            if (v.element() != null) {
+                String routeId = v.element().getPathId();
+                RoutePathDto routePathDto = RoutePathDto.fromEntity(getRoutePath(routeId).get());
+                Route route = getRouteById(routePathDto.getRouteId());
+                VehicleTrack track = new VehicleTrack();
+                track.setAverageSpeed(0.00);
+                track.setTransportId(k);
+                track.setRouteName(route.getName());
+                track.setRouteNumber(route.getNumber());
+                track.setFullTrack(routePathDto.getGeometry());
+                List<PointDto> trackDots = new ArrayList<>();
+                v.forEach((i->{
                     track.setAverageSpeed(track.getAverageSpeed() + i.getSpeed());
                     routePathDto.getGeometry().forEach((p)->{
                         if (Math.abs(p.getX() - i.getLon()) <= 0.002 && Math.abs(p.getY() - i.getLat()) <= 0.002) {
                             trackDots.add(p);
                         }
                     });
-            }));
-            track.setAverageSpeed(track.getAverageSpeed() / v.size());
-            track.setTrack(trackDots);
-            listOfAverageData.add(track);
+                }));
+                track.setAverageSpeed(track.getAverageSpeed() / v.size());
+                track.setTrack(trackDots);
+                listOfAverageData.add(track);
+            }
         });
         return listOfAverageData;
     }

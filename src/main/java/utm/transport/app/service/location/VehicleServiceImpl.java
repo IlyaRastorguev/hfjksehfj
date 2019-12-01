@@ -30,7 +30,7 @@ public class VehicleServiceImpl implements VehicleService {
     private final RouteRepository routeRepository;
     private static MessageListenerModule messageListenerModule;
     private final ConcurrentHashMap<String, Queue<VehicleDto>> mq = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, List<String>> vehiclesOnPath = new ConcurrentHashMap<>();
+    private final HashMap<String, List<String>> vehiclesOnPath = new HashMap<>();
 
     public VehicleServiceImpl (PathStopsRepository pathStopsRepository, RoutePathRepository routePathRepository, RouteRepository routeRepository, StopsRepository stopsRepository) {
         this.pathStopsRepository = pathStopsRepository;

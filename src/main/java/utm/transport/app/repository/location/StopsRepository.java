@@ -14,6 +14,6 @@ import java.util.Optional;
 public interface StopsRepository extends JpaRepository<Stop, String> {
 
 //    @Query(value = "SELECT s FROM Stop s WHERE s.lat - :lat <= 0.000005 AND :lat - s.lat <= 0.000005 AND s.lon - :lon <= 0.000005 AND :lon - s.lon <= 0.000005")
-@Query(value = "SELECT s FROM Stop s WHERE ABS(s.lat - :lat) <= 0.05 AND ABS(s.lon - :lon) <= 0.05")
+@Query(value = "SELECT s FROM Stop s WHERE ABS(s.lat - :lat) <= 0.015 AND ABS(s.lon - :lon) <= 0.015")
     Optional<List<Stop>> findNearbyStops(@Param("lat") Double lat, @Param("lon") Double lon);
 }

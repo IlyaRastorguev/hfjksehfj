@@ -109,7 +109,7 @@ public class VehicleServiceImpl implements VehicleService {
                 v.forEach((i->{
                     track.setAverageSpeed(track.getAverageSpeed() + i.getSpeed());
                     routePathDto.getGeometry().forEach((p)->{
-                        if (Math.abs(p.getX() - i.getLon()) <= 0.002 && Math.abs(p.getY() - i.getLat()) <= 0.002) {
+                        if (Math.abs(p.getX() - i.getLon()) <= 0.015 && Math.abs(p.getY() - i.getLat()) <= 0.015) {
                             trackDots.add(p);
                         }
                     });

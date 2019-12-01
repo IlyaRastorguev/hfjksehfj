@@ -9,10 +9,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import utm.transport.app.api.dto.location.RoutePathDto;
 import utm.transport.app.api.dto.location.StatusMessageDto;
+import utm.transport.app.api.dto.location.VehicleDto;
 import utm.transport.app.api.dto.location.VehicleTrack;
+import utm.transport.app.entity.location.PathStops;
 import utm.transport.app.entity.location.RoutePath;
 import utm.transport.app.entity.location.Stop;
 import utm.transport.app.exceptions.MessageRecieveException;
+import utm.transport.app.service.location.StopPathService;
 import utm.transport.app.service.location.StopService;
 import utm.transport.app.service.location.VehicleService;
 
@@ -27,10 +30,12 @@ public class RoutesEndPoint {
 
     private VehicleService service;
     private StopService stopService;
+    private StopPathService stopPathService;
 
-    public RoutesEndPoint(VehicleService service, StopService stopService) {
+    public RoutesEndPoint(VehicleService service, StopService stopService, StopPathService stopPathService) {
         this.service = service;
         this.stopService = stopService;
+        this.stopPathService = stopPathService;
     }
 
     @GetMapping("/route/path/{id}")
@@ -77,5 +82,17 @@ public class RoutesEndPoint {
     public List<Stop> getCurrentStops (@PathVariable("lat") Double lat, @PathVariable("lon") Double lon) {
         Optional<List<Stop>> stops = stopService.getClosestStops(lat, lon);
         return stops.isPresent() ? stops.get() : new ArrayList<>();
+    }
+
+    @GetMapping("stops/getvehicles/{stopid}/")
+    public List<VehicleDto> getVehiclesPassingThroughStop (@PathVariable("stopid") String stopid) {
+
+        List<VehicleDto> vehicles = new ArrayList<>();
+
+        List<PathStops> pathStops = stopPathService.getRoutesForStop(stopid);
+        for (PathStops el : pathStops)
+            vehicles.addAll(service.getVehiclesOnPath(el.getPathId()));
+
+        return vehicles;
     }
 }

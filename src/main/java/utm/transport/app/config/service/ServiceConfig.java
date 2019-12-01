@@ -13,10 +13,7 @@ import utm.transport.app.repository.location.PathStopsRepository;
 import utm.transport.app.repository.location.RoutePathRepository;
 import utm.transport.app.repository.location.RouteRepository;
 import utm.transport.app.repository.location.StopsRepository;
-import utm.transport.app.service.location.StopService;
-import utm.transport.app.service.location.StopServiceImpl;
-import utm.transport.app.service.location.VehicleService;
-import utm.transport.app.service.location.VehicleServiceImpl;
+import utm.transport.app.service.location.*;
 
 
 @Configuration
@@ -48,6 +45,9 @@ public class ServiceConfig
     {
         return new StopServiceImpl(pathStopsRepository, stopsRepository);
     }
+
+    @Bean
+    public StopPathService stopPathService() {return new StopPathServiceImpl(pathStopsRepository); }
 
     @Bean
     @Primary

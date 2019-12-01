@@ -14,4 +14,7 @@ public interface PathStopsRepository extends JpaRepository<PathStops, String> {
 
     @Query("SELECT p FROM PathStops p where p.pathId = :id")
     Optional<List<PathStops>> findAllPathStops(@Param("id") String id);
+
+    @Query("SELECT p FROM PathStops p where p.stopId = :id")
+    Optional<List<PathStops>> findAllPathsForStop(@Param("id") String id);
 }

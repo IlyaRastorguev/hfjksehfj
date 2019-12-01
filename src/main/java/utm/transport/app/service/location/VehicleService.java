@@ -1,5 +1,6 @@
 package utm.transport.app.service.location;
 
+import utm.transport.app.api.dto.location.VehicleDto;
 import utm.transport.app.api.dto.location.VehicleTrack;
 import utm.transport.app.entity.location.PathStops;
 import utm.transport.app.entity.location.Route;
@@ -16,4 +17,5 @@ public interface VehicleService {
     void abort(String uid);
     List<VehicleTrack> get(Double lat, Double lon);
     Route getRouteById(String uid);
+    List<VehicleDto> getVehiclesOnPath(String id);
 }

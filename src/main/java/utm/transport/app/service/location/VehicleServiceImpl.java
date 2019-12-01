@@ -30,6 +30,7 @@ public class VehicleServiceImpl implements VehicleService {
     private final RouteRepository routeRepository;
     private static MessageListenerModule messageListenerModule;
     private final ConcurrentHashMap<String, Queue<VehicleDto>> mq = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, List<String>> vehiclesOnPath = new ConcurrentHashMap<>();
 
     public VehicleServiceImpl (PathStopsRepository pathStopsRepository, RoutePathRepository routePathRepository, RouteRepository routeRepository, StopsRepository stopsRepository) {
         this.pathStopsRepository = pathStopsRepository;
@@ -66,6 +67,15 @@ public class VehicleServiceImpl implements VehicleService {
                     Queue<VehicleDto> vehicleDtos = new BlockingArrayQueue<>();
                     vehicleDtos.add(vehicle);
                     mq.put(vehicle.getTransportId(), vehicleDtos);
+                }
+
+                if (vehiclesOnPath.containsKey(vehicle.getPathId())) {
+                    if (vehiclesOnPath.get(vehicle.getPathId()) != null)
+                        vehiclesOnPath.get(vehicle.getPathId()).add(vehicle.getTransportId());
+                } else {
+                    List<String> transportIDs = new ArrayList<>();
+                    transportIDs.add(vehicle.getTransportId());
+                    vehiclesOnPath.put(vehicle.getPathId(), transportIDs);
                 }
 
                 System.out.println(String.format("Сообщение получено: %s", vehicle.getTransportId()));
@@ -120,5 +130,21 @@ public class VehicleServiceImpl implements VehicleService {
             }
         });
         return listOfAverageData;
+    }
+
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+    private List<VehicleDto> getVehicleDtosByIDs(List<String> ids) {
+        List<VehicleDto> vehicles = new ArrayList<>();
+        for (String id : ids) {
+            if (mq.containsKey(id) && mq.get(id) != null)
+                vehicles.add(mq.get(id).peek());
+        }
+        return vehicles;
+    }
+
+    @Override
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+    public List<VehicleDto> getVehiclesOnPath(String id) {
+        return vehiclesOnPath.containsKey(id) ? getVehicleDtosByIDs(vehiclesOnPath.get(id)) : new ArrayList<>();
     }
 }

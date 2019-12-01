@@ -16,6 +16,7 @@ import utm.transport.app.exceptions.MessageRecieveException;
 import utm.transport.app.service.location.StopService;
 import utm.transport.app.service.location.VehicleService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -74,6 +75,7 @@ public class RoutesEndPoint {
 
     @GetMapping("/stops/get/{lat}/{lon}/")
     public List<Stop> getCurrentStops (@PathVariable("lat") Double lat, @PathVariable("lon") Double lon) {
-        return stopService.getClosestStops(lat, lon).get();
+        Optional<List<Stop>> stops = stopService.getClosestStops(lat, lon);
+        return stops.isPresent() ? stops.get() : new ArrayList<>();
     }
 }
